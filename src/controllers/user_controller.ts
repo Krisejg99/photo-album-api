@@ -31,6 +31,13 @@ export const login = async (req: Request, res: Response) => {
             message: "Authorization required"
         })
     }
+
+    if (!process.env.ACCESS_TOKEN_SECRET) {
+        return res.status(401).send({
+            status: "fail",
+            message: "Authorization required"
+        })
+    }
 }
 
 /**
