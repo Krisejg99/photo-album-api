@@ -52,9 +52,23 @@ export const login = async (req: Request, res: Response) => {
         expiresIn: process.env.ACCESS_TOKEN_LIFETIME || '4h'
     })
 
+    if (!process.env.REFRESH_TOKEN_SECRET) {
+        return res.status(401).send({
+            status: "fail",
+            message: "no REFRESH_TOKEN_SECRET defined",
+        })
+    }
+
+    const refresh_token = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+        expiresIn: process.env.ACCESS_TOKEN_LIFETIME || '1d'
+    })
+
     res.send({
         status: "success",
-        data: {}
+        data: {
+            access_token,
+            refresh_token,
+        }
     })
 }
 
