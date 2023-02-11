@@ -6,7 +6,6 @@ import Debug from 'debug'
 import { Request, Response } from 'express'
 import { matchedData, validationResult } from 'express-validator'
 import { createUser, getUserByEmail } from '../services/user_service'
-import { JwtPayload } from '../types'
 
 // Create a new debug instance
 const debug = Debug('photo-album-api:user_controller')
@@ -27,20 +26,6 @@ export const login = async (req: Request, res: Response) => {
 
     const passwordComparison = await bcrypt.compare(password, user.password)
     if (!passwordComparison) {
-        return res.status(401).send({
-            status: "fail",
-            message: "Authorization required"
-        })
-    }
-
-    const payload: JwtPayload = {
-        sub: user.id,
-        email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
-    }
-
-    if (!process.env.ACCESS_TOKEN_SECRET) {
         return res.status(401).send({
             status: "fail",
             message: "Authorization required"
