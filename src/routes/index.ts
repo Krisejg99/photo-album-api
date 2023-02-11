@@ -2,7 +2,7 @@ import express from "express"
 import album_router from "./album_router"
 import photo_router from "./photo_router"
 import { register, login, refresh } from "../controllers/user_controller"
-import { createUserValidations } from "../validations/user_validations"
+import { createUserValidations, loginValidations } from "../validations/user_validations"
 
 // instantiate a new router
 const router = express.Router()
@@ -19,7 +19,7 @@ router.get("/", (req, res) => {
 /**
  * POST /login
  */
-router.post("/login", login)
+router.post("/login", loginValidations, login)
 
 /**
  * POST /refresh
