@@ -57,6 +57,14 @@ export const show = async (req: Request, res: Response) => {
  * Create a photo
  */
 export const store = async (req: Request, res: Response) => {
+    const validationErrors = validationResult(req)
+	if (!validationErrors.isEmpty()) {
+		return res.status(400).send({
+			status: "fail",
+			data: validationErrors.array()
+		})
+	}
+
     // if (!req.headers.authorization) {
 	// 	return res.status(401).send({
     //         status: "fail",

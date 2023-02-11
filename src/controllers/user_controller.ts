@@ -24,7 +24,7 @@ export const login = async (req: Request, res: Response) => {
         })
     }
 
-    const { id, email, first_name, last_name } = user
+    const { email, first_name, last_name } = user
 
     const passwordComparison = await bcrypt.compare(req.body.password, user.password)
     if (!passwordComparison) {

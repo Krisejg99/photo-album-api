@@ -1,19 +1,14 @@
 /**
  * User Validations
  */
-import{ body } from 'express-validator'
-import { getUserByEmail } from '../services/user_service'
+import { body } from 'express-validator'
+import { isValidEmail } from './custom_validations/user_custom_validations'
 
 export const createUserValidations = [
     body('email')
         .isString().withMessage('has to be a string')
         .isEmail().withMessage('has to be a valid email')
-        .custom(async email => {
-            const user = await getUserByEmail(email)
-            if (user) {
-                return Promise.reject('Email already in use')
-            }
-        }),
+        .custom(isValidEmail),
     body('password')
         .isString().withMessage('has to be a string')
         .isLength({ min: 6 }).withMessage('has to be at least 6 chars long'),
