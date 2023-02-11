@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt'
 import Debug from 'debug'
 import { Request, Response } from 'express'
 import { matchedData, validationResult } from 'express-validator'
+import jwt from 'jsonwebtoken'
 import { createUser, getUserByEmail } from '../services/user_service'
 import { JwtPayload } from '../types'
 
@@ -21,7 +22,7 @@ export const login = async (req: Request, res: Response) => {
     if (!user) {
         return res.status(401).send({
             status: "fail",
-            message: "Authorization required"
+            message: "Authorization required",
         })
     }
 
@@ -29,14 +30,14 @@ export const login = async (req: Request, res: Response) => {
     if (!passwordComparison) {
         return res.status(401).send({
             status: "fail",
-            message: "Authorization required"
+            message: "Authorization required",
         })
     }
 
     if (!process.env.ACCESS_TOKEN_SECRET) {
         return res.status(401).send({
             status: "fail",
-            message: "Authorization required"
+            message: "no ACCESS_TOKEN_SECRET defined",
         })
     }
 
@@ -47,11 +48,14 @@ export const login = async (req: Request, res: Response) => {
         last_name: user.last_name,
     }
 
+    const access_token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: process.env.ACCESS_TOKEN_LIFETIME || '4h'
+    })
+
     res.send({
         status: "success",
         data: {}
     })
-
 }
 
 /**
