@@ -118,4 +118,15 @@ export const register = async (req: Request, res: Response) => {
 /**
  * Refresh access_token
  */
-export const refresh = async (req: Request, res: Response) => {}
+export const refresh = async (req: Request, res: Response) => {
+    if (!req.headers.authorization) {
+		return res.status(401).send({
+            status: "fail",
+            message: "Authorization required",
+        })
+	}
+    
+    const [ authSchema, token ] = req.headers.authorization.split(' ')
+    debug(authSchema)
+    debug(token)
+}
