@@ -23,7 +23,7 @@ server.listen(PORT)
  */
 server.on('error', (err: NodeJS.ErrnoException) => {
 	if (err.syscall !== 'listen') {
-		throw err;
+		throw err
 	}
 
 	switch (err.code) {

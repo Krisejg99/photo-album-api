@@ -1,10 +1,10 @@
-import express from "express";
-import album_router from "./album_router";
-import photo_router from "./photo_router";
-import { register, login, refresh } from "../controllers/user_controller";
+import express from "express"
+import album_router from "./album_router"
+import photo_router from "./photo_router"
+import { register, login, refresh } from "../controllers/user_controller"
 
 // instantiate a new router
-const router = express.Router();
+const router = express.Router()
 
 /**
  * GET /
@@ -12,32 +12,32 @@ const router = express.Router();
 router.get("/", (req, res) => {
 	res.send({
 		message: "I AM API, BEEP BOOP",
-	});
-});
+	})
+})
 
 /**
  * POST /login
  */
-router.post("/login", login);
+router.post("/login", login)
 
 /**
  * POST /refresh
  */
-router.post("/refresh", refresh);
+router.post("/refresh", refresh)
 
 /**
  * POST /register
  */
-router.post("/register", register);
+router.post("/register", register)
 
 /**
  * /albums
  */
-router.use("/albums", album_router);
+router.use("/albums", album_router)
 
 /**
  * /photos
  */
-router.use("/photos", photo_router);
+router.use("/photos", photo_router)
 
-export default router;
+export default router
