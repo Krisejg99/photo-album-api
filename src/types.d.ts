@@ -17,3 +17,9 @@ export type JwtPayload = {
     iat?: number,
     exp?: number,
 }
+
+export type CreatePhotoData = {
+    title: string,
+    url: string,
+    comment?: string,
+}
