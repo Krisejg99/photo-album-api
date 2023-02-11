@@ -2,6 +2,7 @@
  * User Services
  */
 import prisma from "../prisma"
+import { CreateUserData } from "../types"
 
 export const getUserByEmail = async (email: string) => {
     return await prisma.user.findUnique({
@@ -9,4 +10,8 @@ export const getUserByEmail = async (email: string) => {
             email: email,
         }
     })
+}
+
+export const createUser = async (data: CreateUserData) => {
+    return await prisma.user.create({ data })
 }
