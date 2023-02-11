@@ -1,40 +1,25 @@
 /**
  * Controller Template
  */
-import Debug from 'debug'
-import { Request, Response } from 'express'
-import { validationResult } from 'express-validator'
-import prisma from '../prisma'
+import Debug from "debug";
+import { Request, Response } from "express";
+import { validationResult } from "express-validator";
+import prisma from "../prisma";
 
 // Create a new debug instance
-const debug = Debug('photo-album-api:user_controller')
+const debug = Debug("photo-album-api:user_controller");
 
 /**
- * Get all resources
+ * Login a user
  */
-export const index = async (req: Request, res: Response) => {
-}
+export const login = async (req: Request, res: Response) => {};
 
 /**
- * Get a single resource
+ * Register a user
  */
-export const show = async (req: Request, res: Response) => {
-}
+export const register = async (req: Request, res: Response) => {};
 
 /**
- * Create a resource
+ * Refresh access_token
  */
-export const store = async (req: Request, res: Response) => {
-}
-
-/**
- * Update a resource
- */
-export const update = async (req: Request, res: Response) => {
-}
-
-/**
- * Delete a resource
- */
-export const destroy = async (req: Request, res: Response) => {
-}
+export const refresh = async (req: Request, res: Response) => {};
