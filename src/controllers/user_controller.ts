@@ -16,9 +16,7 @@ const debug = Debug('photo-album-api:user_controller')
  * Login a user
  */
 export const login = async (req: Request, res: Response) => {
-    const { email, password } = req.body
-
-    const user = await getUserByEmail(email)
+    const user = await getUserByEmail(req.body.email)
     if (!user) {
         return res.status(401).send({
             status: "fail",
@@ -26,7 +24,9 @@ export const login = async (req: Request, res: Response) => {
         })
     }
 
-    const passwordComparison = await bcrypt.compare(password, user.password)
+    const { id, email, first_name, last_name } = user
+
+    const passwordComparison = await bcrypt.compare(req.body.password, user.password)
     if (!passwordComparison) {
         return res.status(401).send({
             status: "fail",
@@ -34,33 +34,35 @@ export const login = async (req: Request, res: Response) => {
         })
     }
 
-    if (!process.env.ACCESS_TOKEN_SECRET) {
+    const payload: JwtPayload = {
+        sub: user.id,
+        email,
+        first_name,
+        last_name,
+    }
+
+    const { ACCESS_TOKEN_SECRET, ACCESS_TOKEN_LIFETIME, REFRESH_TOKEN_SECRET, REFRESH_TOKEN_LIFETIME } = process.env
+
+    if (!ACCESS_TOKEN_SECRET) {
         return res.status(401).send({
             status: "fail",
             message: "no ACCESS_TOKEN_SECRET defined",
         })
     }
 
-    const payload: JwtPayload = {
-        sub: user.id,
-        email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
-    }
-
-    const access_token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: process.env.ACCESS_TOKEN_LIFETIME || '4h'
+    const access_token = jwt.sign(payload, ACCESS_TOKEN_SECRET, {
+        expiresIn: ACCESS_TOKEN_LIFETIME || '4h'
     })
 
-    if (!process.env.REFRESH_TOKEN_SECRET) {
+    if (!REFRESH_TOKEN_SECRET) {
         return res.status(401).send({
             status: "fail",
             message: "no REFRESH_TOKEN_SECRET defined",
         })
     }
 
-    const refresh_token = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
-        expiresIn: process.env.ACCESS_TOKEN_LIFETIME || '1d'
+    const refresh_token = jwt.sign(payload, REFRESH_TOKEN_SECRET, {
+        expiresIn: REFRESH_TOKEN_LIFETIME || '1d'
     })
 
     res.send({
@@ -127,6 +129,51 @@ export const refresh = async (req: Request, res: Response) => {
 	}
     
     const [ authSchema, token ] = req.headers.authorization.split(' ')
-    debug(authSchema)
-    debug(token)
+
+    if (authSchema.toLocaleLowerCase() !== 'bearer') {
+        return res.status(401).send({
+            status: "fail",
+            message: "Authorization required",
+        })
+    }
+
+    try {
+        const { ACCESS_TOKEN_SECRET, ACCESS_TOKEN_LIFETIME, REFRESH_TOKEN_SECRET } = process.env
+
+        const refresh_payload = (jwt.verify(token, REFRESH_TOKEN_SECRET || "") as unknown) as JwtPayload
+        const { sub, email, first_name, last_name } = refresh_payload
+
+        const payload: JwtPayload = {
+            sub,
+            email,
+            first_name,
+            last_name,
+        }
+        
+        if (!ACCESS_TOKEN_SECRET) {
+            debug("No ACCESS_TOKEN_SECRET defined")
+    
+            return res.status(500).send({
+                status: "error",
+                data: "No ACCESS_TOKEN_SECRET defined",
+            })
+        }
+    
+        const access_token = jwt.sign(payload, ACCESS_TOKEN_SECRET, {
+            expiresIn: ACCESS_TOKEN_LIFETIME || '4h',
+        })
+
+        res.send({
+            status: "success",
+            data: {
+                access_token,
+            }
+        })
+    }
+    catch (err) {
+        return res.status(401).send({
+            status: "fail",
+            message: "Authorization required",
+        })
+    }
 }
