@@ -20,5 +20,5 @@ export const getPhoto = async (photoId: number) => {
 }
 
 export const createPhoto = async (data: CreatePhotoData) => {
-    // return await prisma.photo.create({ data })
+    return await prisma.photo.create({ data })
 }

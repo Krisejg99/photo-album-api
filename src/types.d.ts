@@ -22,4 +22,5 @@ export type CreatePhotoData = {
     title: string,
     url: string,
     comment?: string,
+    user_id: number,
 }

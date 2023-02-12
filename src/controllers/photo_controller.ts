@@ -2,13 +2,10 @@
  * Controller Template
  */
 import Debug from "debug"
-import prisma from "../prisma"
 import jwt from 'jsonwebtoken'
 import { Request, Response } from "express"
 import { validationResult } from "express-validator"
 import { createPhoto, getPhoto, getPhotos } from "../services/photo_service"
-import { JwtPayload } from '../types'
-import { refresh } from "./user_controller"
 import { getUserById } from "../services/user_service"
 
 // Create a new debug instance
@@ -102,13 +99,11 @@ export const store = async (req: Request, res: Response) => {
     const { title, url, comment } = req.body
 
     try {
-        const photo = await prisma.photo.create({
-            data: {
-                title,
-                url,
-                comment,
-                user_id: user.id,
-            },
+        const photo = await createPhoto({
+            title,
+            url,
+            comment,
+            user_id: user.id,
         })
 
         res.status(201).send({
