@@ -9,6 +9,7 @@ import { validationResult } from "express-validator"
 import { createPhoto, getPhoto, getPhotos } from "../services/photo_service"
 import { JwtPayload } from '../types'
 import { refresh } from "./user_controller"
+import { getUserById } from "../services/user_service"
 
 // Create a new debug instance
 const debug = Debug("photo-album-api:photo_controller")
@@ -65,24 +66,38 @@ export const store = async (req: Request, res: Response) => {
 		})
 	}
 
-    // if (!req.headers.authorization) {
-	// 	return res.status(401).send({
-    //         status: "fail",
-    //         message: "Authorization required",
-    //     })
-	// }
+    if (!req.headers.authorization) {
+		return res.status(401).send({
+            status: "fail",
+            message: "Authorization required",
+        })
+	}
     
-    // const [ authSchema, token ] = req.headers.authorization.split(' ')
+    const [ authSchema, token ] = req.headers.authorization.split(' ')
 
-    // if (authSchema.toLocaleLowerCase() !== 'bearer') {
-    //     return res.status(401).send({
-    //         status: "fail",
-    //         message: "Authorization required",
-    //     })
-    // }
+    if (authSchema.toLocaleLowerCase() !== 'bearer') {
+        return res.status(401).send({
+            status: "fail",
+            message: "Authorization required",
+        })
+    }
+    
+    const decoded_access_token = jwt.decode(token)
+    if (!decoded_access_token) {
 
-    // const access_token = refresh(req, res)
-    // debug(access_token)
+        return res.status(401).send({
+            status: "fail",
+            message: "Authorization required",
+        })
+    }
+
+    const user = await getUserById(Number(decoded_access_token?.sub))
+    if (!user) {
+        return res.status(401).send({
+            status: "fail",
+            message: "Authorization required",
+        })
+    }
 
     const { title, url, comment } = req.body
 
@@ -92,6 +107,7 @@ export const store = async (req: Request, res: Response) => {
                 title,
                 url,
                 comment,
+                user_id: user.id,
             },
         })
 
