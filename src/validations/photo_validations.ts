@@ -14,3 +14,17 @@ export const createPhotoValidations = [
         .isString().withMessage("has to be a string").bail()
         .isLength({ min: 3 }).withMessage("has to be at least 3 chars long"),
 ]
+
+export const updatePhotoValidations = [
+    body('title')
+        .optional()
+        .isString().withMessage("has to be a string").bail()
+        .isLength({ min: 3 }).withMessage("has to be at least 3 chars long"),
+    body('url')
+        .optional()
+        .isURL().withMessage("has to be a URL"),
+    body('comment')
+        .optional()
+        .isString().withMessage("has to be a string").bail()
+        .isLength({ min: 3 }).withMessage("has to be at least 3 chars long"),
+]

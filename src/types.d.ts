@@ -24,3 +24,9 @@ export type CreatePhotoData = {
     comment?: string,
     user_id: number,
 }
+
+export type UpdatePhotoData = {
+    title?: string,
+    url?: string,
+    comment?: string,
+}
