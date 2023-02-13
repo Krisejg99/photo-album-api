@@ -2,11 +2,9 @@
  * Controller Template
  */
 import Debug from "debug"
-import jwt from 'jsonwebtoken'
 import { Request, Response } from "express"
 import { validationResult } from "express-validator"
 import { createPhoto, getPhoto, getPhotos } from "../services/photo_service"
-import { getUserById } from "../services/user_service"
 
 // Create a new debug instance
 const debug = Debug("photo-album-api:photo_controller")
@@ -63,39 +61,6 @@ export const store = async (req: Request, res: Response) => {
 		})
 	}
 
-    if (!req.headers.authorization) {
-		return res.status(401).send({
-            status: "fail",
-            message: "Authorization required",
-        })
-	}
-    
-    const [ authSchema, token ] = req.headers.authorization.split(' ')
-
-    if (authSchema.toLocaleLowerCase() !== 'bearer') {
-        return res.status(401).send({
-            status: "fail",
-            message: "Authorization required",
-        })
-    }
-    
-    const decoded_access_token = jwt.decode(token)
-    if (!decoded_access_token) {
-
-        return res.status(401).send({
-            status: "fail",
-            message: "Authorization required",
-        })
-    }
-
-    const user = await getUserById(Number(decoded_access_token?.sub))
-    if (!user) {
-        return res.status(401).send({
-            status: "fail",
-            message: "Authorization required",
-        })
-    }
-
     const { title, url, comment } = req.body
 
     try {
@@ -103,7 +68,7 @@ export const store = async (req: Request, res: Response) => {
             title,
             url,
             comment,
-            user_id: user.id,
+            user_id: Number(req.token!.sub),
         })
 
         res.status(201).send({
