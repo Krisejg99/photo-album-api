@@ -1,13 +1,13 @@
 /**
  * Controller Template
  */
-import Debug from "debug"
-import { Request, Response } from "express"
-import { validationResult } from "express-validator"
-import { createPhoto, getPhoto, getPhotos } from "../services/photo_service"
+import Debug from 'debug'
+import { Request, Response } from 'express'
+import { matchedData, validationResult } from 'express-validator'
+import { createPhoto, getPhoto, getPhotos } from '../services/photo_service'
 
 // Create a new debug instance
-const debug = Debug("photo-album-api:photo_controller")
+const debug = Debug('photo-album-api:photo_controller')
 
 /**
  * Get all photos
@@ -61,7 +61,7 @@ export const store = async (req: Request, res: Response) => {
 		})
 	}
 
-    const { title, url, comment } = req.body
+    const { title, url, comment } = matchedData(req)
 
     try {
         const photo = await createPhoto({
