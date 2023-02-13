@@ -4,7 +4,7 @@
 import Debug from 'debug'
 import { Request, Response } from 'express'
 import { matchedData, validationResult } from 'express-validator'
-import { createPhoto, getPhoto, getPhotos, updatePhoto } from '../services/photo_service'
+import { createPhoto, deletePhoto, getPhoto, getPhotos, updatePhoto } from '../services/photo_service'
 
 const debug = Debug('photo-album-api:photo_controller')
 
@@ -38,7 +38,7 @@ export const show = async (req: Request, res: Response) => {
         if (!photo || photo.user_id !== req.token?.sub) {
             return res.status(401).send({
                 status: "fail",
-                data: "Authorization required",
+                message: "Authorization required",
             })
         }
 
@@ -104,18 +104,20 @@ export const update = async (req: Request, res: Response) => {
     const validatedData = matchedData(req)
 
     try {
-        const photo = await updatePhoto(Number(req.params.photoId), validatedData)
+        const photo = await getPhoto(Number(req.params.photoId))
 
         if (!photo || photo.user_id !== req.token?.sub) {
             return res.status(401).send({
                 status: "fail",
-                data: "Authorization required",
+                message: "Authorization required",
             })
         }
 
+        const result = await updatePhoto(Number(photo.id), validatedData)
+
         res.send({
             status: "success",
-            data: photo,
+            data: result,
         })
     }
     catch (err) {
@@ -129,4 +131,28 @@ export const update = async (req: Request, res: Response) => {
 /**
  * Delete a photo
  */
-export const destroy = async (req: Request, res: Response) => {}
+export const destroy = async (req: Request, res: Response) => {
+    try {
+        const photo = await getPhoto(Number(req.params.photoId))
+
+        if (!photo || photo.user_id !== req.token?.sub) {
+            return res.status(401).send({
+                status: "fail",
+                message: "Authorization required",
+            })
+        }
+
+        const result = await deletePhoto(Number(photo.id))
+
+        res.send({
+            status: "success",
+            data: result,
+        })
+    }
+    catch (err) {
+        res.status(500).send({
+            status: "error",
+            message: "Could not update photo in database",
+        })
+    }
+}

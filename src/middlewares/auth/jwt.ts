@@ -32,7 +32,7 @@ export const validateToken = (req: Request, res: Response, next: NextFunction) =
     catch (err) {
         return res.status(401).send({
             status: "fail",
-            data: "Authorization required",
+            message: "Authorization required",
         })
     }
 
