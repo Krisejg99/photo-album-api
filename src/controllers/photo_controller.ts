@@ -14,7 +14,7 @@ const debug = Debug("photo-album-api:photo_controller")
  */
 export const index = async (req: Request, res: Response) => {
     try {
-        const photos = await getPhotos()
+        const photos = await getPhotos(Number(req.token?.sub))
 
         res.send({
             status: "success",
@@ -68,7 +68,7 @@ export const store = async (req: Request, res: Response) => {
             title,
             url,
             comment,
-            user_id: Number(req.token!.sub),
+            user_id: Number(req.token?.sub),
         })
 
         res.status(201).send({
