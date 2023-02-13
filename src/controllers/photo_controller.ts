@@ -36,6 +36,13 @@ export const show = async (req: Request, res: Response) => {
     try {
         const photo = await getPhoto(Number(req.params.photoId))
 
+        if (!photo || photo.user_id !== req.token?.sub) {
+            return res.status(401).send({
+                status: "fail",
+                data: "Authorization required",
+            })
+        }
+
         res.send({
             status: "success",
             data: photo,
