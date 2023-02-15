@@ -5,6 +5,7 @@ import Debug from 'debug'
 import { Request, Response } from 'express'
 import { matchedData, validationResult } from 'express-validator'
 import { addPhotoToAlbum, createAlbum, deleteAlbum, getAlbum, getAlbums, updateAlbum } from '../services/album_service'
+import { getPhoto } from '../services/photo_service'
 
 const debug = Debug('photo-album-api:album_controller')
 
@@ -178,6 +179,12 @@ export const connect = async (req: Request, res: Response) => {
 
         if (!album) {
             return res.status(404).send({ status: "fail", message: `Could not find album with id ${album_id} to add photo to`, })
+        }
+
+        const photo = await getPhoto(photo_id, user_id)
+
+        if (!photo) {
+            return res.status(404).send({ status: "fail", message: `Could not find photo with id ${photo_id} to add to album`, })
         }
 
         const result = await addPhotoToAlbum(album_id, photo_id)
