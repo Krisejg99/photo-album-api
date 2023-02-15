@@ -104,6 +104,7 @@ export const update = async (req: Request, res: Response) => {
     const validatedData = matchedData(req)
 
     try {
+        // Returns null if not found, to be able to send 'Authorization required' error, instead of going to 'catch'
         const photo = await getPhoto(Number(req.params.photoId))
 
         if (!photo || photo.user_id !== req.token?.sub) {
@@ -133,6 +134,7 @@ export const update = async (req: Request, res: Response) => {
  */
 export const destroy = async (req: Request, res: Response) => {
     try {
+        // Returns null if not found, to be able to send 'Authorization required' error, instead of going to 'catch'
         const photo = await getPhoto(Number(req.params.photoId))
 
         if (!photo || photo.user_id !== req.token?.sub) {

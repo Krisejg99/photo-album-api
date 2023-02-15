@@ -13,7 +13,7 @@ const router = express.Router()
  */
 router.get('/', (req, res) => {
 	res.send({
-		message: 'I AM API, BEEP BOOP',
+		message: "I AM API, BEEP BOOP",
 	})
 })
 
@@ -35,7 +35,7 @@ router.post('/register', createUserValidations, register)
 /**
  * /albums
  */
-router.use('/albums', album_router)
+router.use('/albums', validateToken, album_router)
 
 /**
  * /photos

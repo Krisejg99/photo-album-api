@@ -1,18 +1,32 @@
 /**
  * Controller Template
  */
-import Debug from "debug"
-import { Request, Response } from "express"
-import { validationResult } from "express-validator"
-import prisma from "../prisma"
+import Debug from 'debug'
+import { Request, Response } from 'express'
+import { validationResult } from 'express-validator'
+import { getAlbums } from '../services/album_service'
 
-// Create a new debug instance
-const debug = Debug("photo-album-api:album_controller")
+const debug = Debug('photo-album-api:album_controller')
 
 /**
  * Get all albums
  */
-export const index = async (req: Request, res: Response) => {}
+export const index = async (req: Request, res: Response) => {
+    try {
+        const albums = await getAlbums(Number(req.token?.sub))
+
+        res.send({
+            status: "success",
+            data: albums,
+        })
+    }
+    catch (err) {
+        res.status(500).send({
+            status: "error",
+            message: "Could not get albums in database",
+        })
+    }
+}
 
 /**
  * Get a single album
