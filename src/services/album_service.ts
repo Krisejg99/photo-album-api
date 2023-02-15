@@ -26,3 +26,7 @@ export const createAlbum = async (data: CreateAlbumData) => {
 export const updateAlbum = async (id: number, data: UpdateAlbumData) => {
     return await prisma.album.update({ data, where: { id } })
 }
+
+export const deleteAlbum = async (id: number) => {
+    return await prisma.album.delete({ where: { id } })
+}

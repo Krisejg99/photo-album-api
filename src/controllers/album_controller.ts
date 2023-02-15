@@ -4,9 +4,9 @@
 import Debug from 'debug'
 import { Request, Response } from 'express'
 import { matchedData, validationResult } from 'express-validator'
-import { createAlbum, getAlbum, getAlbums, updateAlbum } from '../services/album_service'
+import { createAlbum, deleteAlbum, getAlbum, getAlbums, updateAlbum } from '../services/album_service'
 
-const debug = Debug('album-album-api:album_controller')
+const debug = Debug('photo-album-api:album_controller')
 
 /**
  * Get all albums
@@ -130,4 +130,29 @@ export const update = async (req: Request, res: Response) => {
 /**
  * Delete an album
  */
-export const destroy = async (req: Request, res: Response) => {}
+export const destroy = async (req: Request, res: Response) => {
+    try {
+        // Returns null if not found, to be able to send 'Authorization required' error, instead of going to 'catch'
+        const album = await getAlbum(Number(req.params.albumId))
+
+        if (!album || album.user_id !== req.token?.sub) {
+            return res.status(401).send({
+                status: "fail",
+                message: "Authorization required",
+            })
+        }
+
+        const result = await deleteAlbum(Number(album.id))
+
+        res.send({
+            status: "success",
+            data: result,
+        })
+    }
+    catch (err) {
+        res.status(500).send({
+            status: "error",
+            message: "Could not update album in database",
+        })
+    }
+}
