@@ -4,7 +4,7 @@
 import Debug from 'debug'
 import { Request, Response } from 'express'
 import { matchedData, validationResult } from 'express-validator'
-import { createAlbum, getAlbums } from '../services/album_service'
+import { createAlbum, getAlbum, getAlbums } from '../services/album_service'
 
 const debug = Debug('photo-album-api:album_controller')
 
@@ -31,7 +31,29 @@ export const index = async (req: Request, res: Response) => {
 /**
  * Get a single album
  */
-export const show = async (req: Request, res: Response) => {}
+export const show = async (req: Request, res: Response) => {
+    try {
+        const album = await getAlbum(Number(req.params.albumId))
+
+        if (!album || album.user_id !== req.token?.sub) {
+            return res.status(401).send({
+                status: "fail",
+                message: "Authorization required",
+            })
+        }
+
+        res.send({
+            status: "success",
+            data: album,
+        })
+    }
+    catch (err) {
+        res.status(500).send({
+            status: "error",
+            message: "Could not get album in database",
+        })
+    }
+}
 
 /**
  * Create an album
