@@ -3,7 +3,7 @@
  */
 import express from 'express'
 import { index,	show, store, update, destroy, } from '../controllers/album_controller'
-import { createAlbumValidations } from '../validations/album_validations'
+import { createAlbumValidations, updateAlbumValidations } from '../validations/album_validations'
 const router = express.Router()
 
 /**
@@ -24,7 +24,7 @@ router.post('/', createAlbumValidations, store)
 /**
  * PATCH /albums/:albumId
  */
-router.patch('/:albumId', update)
+router.patch('/:albumId', updateAlbumValidations, update)
 
 /**
  * DELETE /albums/:albumId

@@ -35,3 +35,7 @@ export type CreateAlbumData = {
     title: string,
     user_id: number,
 }
+
+export type UpdateAlbumData = {
+    title?: string,
+}
