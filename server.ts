@@ -19,7 +19,7 @@ const server = http.createServer(app)
 server.listen(PORT)
 
 /**
- * Event listener for HTTP server "error" event.
+ * Event listener for HTTP server 'error' event.
  */
 server.on('error', (err: NodeJS.ErrnoException) => {
 	if (err.syscall !== 'listen') {
@@ -41,7 +41,7 @@ server.on('error', (err: NodeJS.ErrnoException) => {
 })
 
 /**
- * Event listener for HTTP server "listening" event.
+ * Event listener for HTTP server 'listening' event.
  */
 server.on('listening', () => {
 	console.log(`🧑🏻‍🍳 Yay, server started on http://localhost:${PORT}`)
