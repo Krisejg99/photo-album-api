@@ -30,3 +30,8 @@ export type UpdatePhotoData = {
     url?: string,
     comment?: string,
 }
+
+export type CreateAlbumData = {
+    title: string,
+    user_id: number,
+}

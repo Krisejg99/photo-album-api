@@ -3,8 +3,8 @@
  */
 import Debug from 'debug'
 import { Request, Response } from 'express'
-import { validationResult } from 'express-validator'
-import { getAlbums } from '../services/album_service'
+import { matchedData, validationResult } from 'express-validator'
+import { createAlbum, getAlbums } from '../services/album_service'
 
 const debug = Debug('photo-album-api:album_controller')
 
@@ -44,6 +44,26 @@ export const store = async (req: Request, res: Response) => {
 			data: validationErrors.array()
 		})
 	}
+
+    const { title } = matchedData(req)
+
+    try {
+        const album = await createAlbum({
+            title,
+            user_id: Number(req.token?.sub),
+        })
+
+        res.status(201).send({
+            status: "success",
+            data: album,
+        })
+    }
+    catch (err) {
+        res.status(500).send({
+            status: "error",
+            message: "Could not create album in database",
+        })    
+    }
 }
 
 /**
