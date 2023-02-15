@@ -4,7 +4,7 @@
 import Debug from 'debug'
 import { Request, Response } from 'express'
 import { matchedData, validationResult } from 'express-validator'
-import { createAlbum, deleteAlbum, getAlbum, getAlbums, updateAlbum } from '../services/album_service'
+import { connectPhotoToAlbum, createAlbum, deleteAlbum, getAlbum, getAlbums, updateAlbum } from '../services/album_service'
 
 const debug = Debug('photo-album-api:album_controller')
 
@@ -32,15 +32,14 @@ export const index = async (req: Request, res: Response) => {
  * Get a single album
  */
 export const show = async (req: Request, res: Response) => {
+    const album_id = Number(req.params.albumId)
+    const user_id = Number(req.token?.sub)
+
     try {
-        const album = await getAlbum(Number(req.params.albumId))
+        const album = await getAlbum(album_id, user_id)
 
         if (!album) {
-            return res.status(404).send({ status: "fail", message: "Could not find album", })
-        }
-
-        if (album.user_id !== req.token?.sub) {
-            return res.status(401).send({ status: "fail", message: "Authorization required", })
+            return res.status(404).send({ status: "fail", message: `Could not find album with id ${album_id}`, })
         }
 
         res.send({
@@ -101,24 +100,23 @@ export const update = async (req: Request, res: Response) => {
 		})
 	}
     const validatedData = matchedData(req)
+    const album_id = Number(req.params.albumId)
+    const user_id = Number(req.token?.sub)
+
 
     try {
-        // Returns null if not found, to be able to send 'Authorization required' error, instead of going to 'catch'
-        const album = await getAlbum(Number(req.params.albumId))
+        // Returns null if not found, to be able to send 404 fail with message, instead of going to 'catch'
+        const album = await getAlbum(album_id, user_id)
 
         if (!album) {
-            return res.status(404).send({ status: "fail", message: "Could not find album to update", })
+            return res.status(404).send({ status: "fail", message: `Could not find album with id ${album_id} to update`, })
         }
 
-        if (album.user_id !== req.token?.sub) {
-            return res.status(401).send({ status: "fail", message: "Authorization required", })
-        }
-
-        const result = await updateAlbum(Number(album.id), validatedData)
+        const updatedAlbum = await updateAlbum(album.id, validatedData)
 
         res.send({
             status: "success",
-            data: result,
+            data: updatedAlbum,
         })
     }
     catch (err) {
@@ -133,23 +131,21 @@ export const update = async (req: Request, res: Response) => {
  * Delete an album
  */
 export const destroy = async (req: Request, res: Response) => {
+    const album_id = Number(req.params.albumId)
+    const user_id = Number(req.token?.sub)
     try {
-        // Returns null if not found, to be able to send 'Authorization required' error, instead of going to 'catch'
-        const album = await getAlbum(Number(req.params.albumId))
+        // Returns null if not found, to be able to send 404 fail with message, instead of going to 'catch'
+        const album = await getAlbum(album_id, user_id)
 
         if (!album) {
-            return res.status(404).send({ status: "fail", message: "Could not find album to delete", })
+            return res.status(404).send({ status: "fail", message: `Could not find album with id ${album_id} to delete`, })
         }
 
-        if (album.user_id !== req.token?.sub) {
-            return res.status(401).send({ status: "fail", message: "Authorization required", })
-        }
-
-        const result = await deleteAlbum(Number(album.id))
+        const deletedAlbum = await deleteAlbum(album.id)
 
         res.send({
             status: "success",
-            data: result,
+            data: deletedAlbum,
         })
     }
     catch (err) {
