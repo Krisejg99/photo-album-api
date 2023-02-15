@@ -35,11 +35,12 @@ export const show = async (req: Request, res: Response) => {
     try {
         const album = await getAlbum(Number(req.params.albumId))
 
-        if (!album || album.user_id !== req.token?.sub) {
-            return res.status(401).send({
-                status: "fail",
-                message: "Authorization required",
-            })
+        if (!album) {
+            return res.status(404).send({ status: "fail", message: "Could not find album", })
+        }
+
+        if (album.user_id !== req.token?.sub) {
+            return res.status(401).send({ status: "fail", message: "Authorization required", })
         }
 
         res.send({
@@ -105,11 +106,12 @@ export const update = async (req: Request, res: Response) => {
         // Returns null if not found, to be able to send 'Authorization required' error, instead of going to 'catch'
         const album = await getAlbum(Number(req.params.albumId))
 
-        if (!album || album.user_id !== req.token?.sub) {
-            return res.status(401).send({
-                status: "fail",
-                message: "Authorization required",
-            })
+        if (!album) {
+            return res.status(404).send({ status: "fail", message: "Could not find album to update", })
+        }
+
+        if (album.user_id !== req.token?.sub) {
+            return res.status(401).send({ status: "fail", message: "Authorization required", })
         }
 
         const result = await updateAlbum(Number(album.id), validatedData)
@@ -135,11 +137,12 @@ export const destroy = async (req: Request, res: Response) => {
         // Returns null if not found, to be able to send 'Authorization required' error, instead of going to 'catch'
         const album = await getAlbum(Number(req.params.albumId))
 
-        if (!album || album.user_id !== req.token?.sub) {
-            return res.status(401).send({
-                status: "fail",
-                message: "Authorization required",
-            })
+        if (!album) {
+            return res.status(404).send({ status: "fail", message: "Could not find album to delete", })
+        }
+
+        if (album.user_id !== req.token?.sub) {
+            return res.status(401).send({ status: "fail", message: "Authorization required", })
         }
 
         const result = await deleteAlbum(Number(album.id))

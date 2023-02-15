@@ -35,11 +35,12 @@ export const show = async (req: Request, res: Response) => {
     try {
         const photo = await getPhoto(Number(req.params.photoId))
 
-        if (!photo || photo.user_id !== req.token?.sub) {
-            return res.status(401).send({
-                status: "fail",
-                message: "Authorization required",
-            })
+        if (!photo) {
+            return res.status(404).send({ status: "fail", message: "Could not find photo", })
+        }
+
+        if (photo.user_id !== req.token?.sub) {
+            return res.status(401).send({ status: "fail", message: "Authorization required", })
         }
 
         res.send({
@@ -107,11 +108,12 @@ export const update = async (req: Request, res: Response) => {
         // Returns null if not found, to be able to send 'Authorization required' error, instead of going to 'catch'
         const photo = await getPhoto(Number(req.params.photoId))
 
-        if (!photo || photo.user_id !== req.token?.sub) {
-            return res.status(401).send({
-                status: "fail",
-                message: "Authorization required",
-            })
+        if (!photo) {
+            return res.status(404).send({ status: "fail", message: "Could not find photo to update", })
+        }
+
+        if (photo.user_id !== req.token?.sub) {
+            return res.status(401).send({ status: "fail", message: "Authorization required", })
         }
 
         const result = await updatePhoto(Number(photo.id), validatedData)
@@ -137,11 +139,12 @@ export const destroy = async (req: Request, res: Response) => {
         // Returns null if not found, to be able to send 'Authorization required' error, instead of going to 'catch'
         const photo = await getPhoto(Number(req.params.photoId))
 
-        if (!photo || photo.user_id !== req.token?.sub) {
-            return res.status(401).send({
-                status: "fail",
-                message: "Authorization required",
-            })
+        if (!photo) {
+            return res.status(404).send({ status: "fail", message: "Could not find photo to delete", })
+        }
+
+        if (photo.user_id !== req.token?.sub) {
+            return res.status(401).send({ status: "fail", message: "Authorization required", })
         }
 
         const result = await deletePhoto(Number(photo.id))
