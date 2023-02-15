@@ -5,7 +5,7 @@ import Debug from 'debug'
 import { Request, Response } from 'express'
 import { matchedData, validationResult } from 'express-validator'
 import { addPhotoToAlbum, createAlbum, deleteAlbum, getAlbum, getAlbums, updateAlbum } from '../services/album_service'
-import { getPhoto } from '../services/photo_service'
+import { getPhoto, lookForPhotos } from '../services/photo_service'
 
 const debug = Debug('photo-album-api:album_controller')
 
@@ -160,6 +160,7 @@ export const destroy = async (req: Request, res: Response) => {
 /**
  * Connect a photo to an album
  */
+import prisma from '../prisma'
 export const connect = async (req: Request, res: Response) => {
     const validationErrors = validationResult(req)
 	if (!validationErrors.isEmpty()) {
@@ -170,7 +171,15 @@ export const connect = async (req: Request, res: Response) => {
 	}
 
     const validatedData = matchedData(req)
-    const photo_id = Number(validatedData.photo_id)
+
+    if (validatedData.photo_id === Number(validatedData.photo_id)) {
+        validatedData.photo_id = [validatedData.photo_id]
+    }
+
+    const photo_ids = [...validatedData.photo_id].map((id: Number) => {
+        return { id }
+    })
+
     const album_id = Number(req.params.albumId)
     const user_id = req.token!.sub
 
@@ -181,13 +190,14 @@ export const connect = async (req: Request, res: Response) => {
             return res.status(404).send({ status: "fail", message: `Could not find album with id ${album_id} to add photo to`, })
         }
 
-        const photo = await getPhoto(photo_id, user_id)
+        const photos = await lookForPhotos(user_id, validatedData.photo_id)
+        debug(photos)
 
-        if (!photo) {
-            return res.status(404).send({ status: "fail", message: `Could not find photo with id ${photo_id} to add to album`, })
+        if (photos.length !== validatedData.photo_id.length) {
+            return res.status(404).send({ status: "fail", message: "Could not find all photos", })
         }
-
-        const result = await addPhotoToAlbum(album_id, photo_id)
+        
+        const result = await addPhotoToAlbum(album_id, photo_ids)
 
         res.send({
             status: "success",
@@ -197,7 +207,7 @@ export const connect = async (req: Request, res: Response) => {
     catch (err) {
         res.status(500).send({
             status: "error",
-            message: "Could not update album in database",
+            message: "Could not add photos to album in database",
         })
     }
 }

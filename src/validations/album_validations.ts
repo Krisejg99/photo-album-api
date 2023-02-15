@@ -18,6 +18,11 @@ export const updateAlbumValidations = [
 
 export const connectPhotoValidations = [
     body('photo_id')
-    .isInt().withMessage("has to be a number")
-    .not().isString().withMessage("has to be a number").bail(),
+        .isInt().withMessage("has to be an integer")
+        .not().isString().withMessage("has to be an integer"),
+
+    body('photo_id.*')
+        .isInt().withMessage("has to be an integer")
+        .not().isString().withMessage("has to be an integer")
+        .not().isArray().withMessage("has to be an integer"),
 ]
