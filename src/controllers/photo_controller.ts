@@ -13,7 +13,7 @@ const debug = Debug('photo-album-api:photo_controller')
  */
 export const index = async (req: Request, res: Response) => {
     try {
-        const photos = await getPhotos(Number(req.token?.sub))
+        const photos = await getPhotos(req.token!.sub)
 
         res.send({
             status: "success",
@@ -33,7 +33,7 @@ export const index = async (req: Request, res: Response) => {
  */
 export const show = async (req: Request, res: Response) => {
     const photo_id = Number(req.params.photoId)
-    const user_id = Number(req.token?.sub)
+    const user_id = req.token!.sub
 
     try {
         const photo = await getPhoto(photo_id, user_id)
@@ -74,7 +74,7 @@ export const store = async (req: Request, res: Response) => {
             title,
             url,
             comment,
-            user_id: Number(req.token?.sub),
+            user_id: req.token!.sub,
         })
 
         res.status(201).send({
@@ -103,7 +103,7 @@ export const update = async (req: Request, res: Response) => {
 	}
     const validatedData = matchedData(req)
     const photo_id = Number(req.params.photoId)
-    const user_id = Number(req.token?.sub)
+    const user_id = req.token!.sub
 
     try {
         // Returns null if not found, to be able to send 404 fail with message, instead of going to 'catch'
@@ -133,7 +133,7 @@ export const update = async (req: Request, res: Response) => {
  */
 export const destroy = async (req: Request, res: Response) => {
     const photo_id = Number(req.params.photoId)
-    const user_id = Number(req.token?.sub)
+    const user_id = req.token!.sub
 
     try {
         // Returns null if not found, to be able to send 404 fail with message, instead of going to 'catch'

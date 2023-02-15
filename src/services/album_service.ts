@@ -24,7 +24,7 @@ export const deleteAlbum = async (id: number) => {
     return await prisma.album.delete({ where: { id } })
 }
 
-export const connectPhotoToAlbum = async (album_id: number, photo_id: number) => {
+export const addPhotoToAlbum = async (album_id: number, photo_id: number) => {
     return await prisma.album.update({
         where: {
             id: album_id,

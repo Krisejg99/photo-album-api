@@ -4,7 +4,7 @@
 import Debug from 'debug'
 import { Request, Response } from 'express'
 import { matchedData, validationResult } from 'express-validator'
-import { connectPhotoToAlbum, createAlbum, deleteAlbum, getAlbum, getAlbums, updateAlbum } from '../services/album_service'
+import { addPhotoToAlbum, createAlbum, deleteAlbum, getAlbum, getAlbums, updateAlbum } from '../services/album_service'
 
 const debug = Debug('photo-album-api:album_controller')
 
@@ -13,7 +13,7 @@ const debug = Debug('photo-album-api:album_controller')
  */
 export const index = async (req: Request, res: Response) => {
     try {
-        const albums = await getAlbums(Number(req.token?.sub))
+        const albums = await getAlbums(req.token!.sub)
 
         res.send({
             status: "success",
@@ -33,7 +33,7 @@ export const index = async (req: Request, res: Response) => {
  */
 export const show = async (req: Request, res: Response) => {
     const album_id = Number(req.params.albumId)
-    const user_id = Number(req.token?.sub)
+    const user_id = req.token!.sub
 
     try {
         const album = await getAlbum(album_id, user_id)
@@ -72,7 +72,7 @@ export const store = async (req: Request, res: Response) => {
     try {
         const album = await createAlbum({
             title,
-            user_id: Number(req.token?.sub),
+            user_id: req.token!.sub,
         })
 
         res.status(201).send({
@@ -101,7 +101,7 @@ export const update = async (req: Request, res: Response) => {
 	}
     const validatedData = matchedData(req)
     const album_id = Number(req.params.albumId)
-    const user_id = Number(req.token?.sub)
+    const user_id = req.token!.sub
 
 
     try {
@@ -132,7 +132,7 @@ export const update = async (req: Request, res: Response) => {
  */
 export const destroy = async (req: Request, res: Response) => {
     const album_id = Number(req.params.albumId)
-    const user_id = Number(req.token?.sub)
+    const user_id = req.token!.sub
     try {
         // Returns null if not found, to be able to send 404 fail with message, instead of going to 'catch'
         const album = await getAlbum(album_id, user_id)
@@ -146,6 +146,45 @@ export const destroy = async (req: Request, res: Response) => {
         res.send({
             status: "success",
             data: deletedAlbum,
+        })
+    }
+    catch (err) {
+        res.status(500).send({
+            status: "error",
+            message: "Could not update album in database",
+        })
+    }
+}
+
+/**
+ * Connect a photo to an album
+ */
+export const connect = async (req: Request, res: Response) => {
+    const validationErrors = validationResult(req)
+	if (!validationErrors.isEmpty()) {
+		return res.status(400).send({
+			status: "fail",
+			data: validationErrors.array()
+		})
+	}
+
+    const validatedData = matchedData(req)
+    const photo_id = Number(validatedData.photo_id)
+    const album_id = Number(req.params.albumId)
+    const user_id = req.token!.sub
+
+    try {
+        const album = await getAlbum(album_id, user_id)
+
+        if (!album) {
+            return res.status(404).send({ status: "fail", message: `Could not find album with id ${album_id} to add photo to`, })
+        }
+
+        const result = await addPhotoToAlbum(album_id, photo_id)
+
+        res.send({
+            status: "success",
+            data: result,
         })
     }
     catch (err) {
