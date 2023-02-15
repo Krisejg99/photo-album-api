@@ -1,8 +1,7 @@
 /**
- * Router Template
+ * Photo Router
  */
 import express from 'express'
-import { body } from 'express-validator'
 import { index, show, store, update, destroy } from '../controllers/photo_controller'
 import { createPhotoValidations, updatePhotoValidations } from '../validations/photo_validations'
 const router = express.Router()

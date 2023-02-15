@@ -1,5 +1,5 @@
 /**
- * Router Template
+ * Album Router
  */
 import express from 'express'
 import { index,	show, store, update, destroy, } from '../controllers/album_controller'
@@ -7,28 +7,28 @@ import { createAlbumValidations } from '../validations/album_validations'
 const router = express.Router()
 
 /**
- * GET /resource
+ * GET /albums
  */
 router.get('/', index)
 
 /**
- * GET /resource/:resourceId
+ * GET /albums/:albumId
  */
-router.get('/:resourceId', show)
+router.get('/:albumId', show)
 
 /**
- * POST /resource
+ * POST /albums
  */
 router.post('/', createAlbumValidations, store)
 
 /**
- * PATCH /resource/:resourceId
+ * PATCH /albums/:albumId
  */
-router.patch('/:resourceId', update)
+router.patch('/:albumId', update)
 
 /**
- * DELETE /resource/:resourceId
+ * DELETE /albums/:albumId
  */
-router.delete('/:resourceId', destroy)
+router.delete('/:albumId', destroy)
 
 export default router
