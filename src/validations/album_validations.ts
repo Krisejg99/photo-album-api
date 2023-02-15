@@ -2,7 +2,6 @@
  * Photo Validations
  */
 import { body } from 'express-validator'
-import { isExistingPhoto } from './custom_validations/album_custom_validations'
 
 export const createAlbumValidations = [
     body('title')
@@ -20,6 +19,5 @@ export const updateAlbumValidations = [
 export const connectPhotoValidations = [
     body('photo_id')
     .isInt().withMessage("has to be a number")
-    .not().isString().withMessage("has to be a number").bail()
-    .custom(isExistingPhoto),
+    .not().isString().withMessage("has to be a number").bail(),
 ]
