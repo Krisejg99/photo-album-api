@@ -4,7 +4,7 @@
 import Debug from 'debug'
 import { Request, Response } from 'express'
 import { matchedData, validationResult } from 'express-validator'
-import { addPhotoToAlbum, createAlbum, deleteAlbum, getAlbum, getAlbums, updateAlbum } from '../services/album_service'
+import { addPhotoToAlbum, createAlbum, deleteAlbum, findPhotoInAlbum, getAlbum, getAlbums, removePhotoFromAlbum, updateAlbum } from '../services/album_service'
 import { getPhoto, lookForPhotos } from '../services/photo_service'
 
 const debug = Debug('photo-album-api:album_controller')
@@ -212,34 +212,32 @@ export const connect = async (req: Request, res: Response) => {
  * Connect a photo to an album
  */
 export const disconnect = async (req: Request, res: Response) => {
-    const { albumId: album_id, photoId: photo_id } = req.params
+    const album_id = Number(req.params.albumId)
+    const photo_id = Number(req.params.photoId)
     const user_id = req.token!.sub
 
     try {
-        const photo = await getPhoto(Number(photo_id), user_id)
-        if (!photo) {
-            return res.status(404).send({ status: "fail", message: `Could not find album with id ${photo_id} to add photo to`, })
+
+        const album = await getAlbum(album_id, user_id)
+        if (!album) {
+            return res.status(404).send({ status: "fail", message: `Could not find album with id ${album_id}`, })
         }
 
-        const album = await prisma.album.update({
-            where: {
-                id: Number(album_id),
-            },
-            data: {
-                photos: {
-                    disconnect: {
-                        id: Number(photo_id),
-                    },
-                },
-            },
-            include: {
-                photos: true,
-            },
-        })
+        const photo = await getPhoto(photo_id, user_id)
+        if (!photo) {
+            return res.status(404).send({ status: "fail", message: `Could not find photo with id ${photo_id}`, })
+        }
+
+        const photoInAlbum = await findPhotoInAlbum(album_id, photo_id, user_id)
+        if (!photoInAlbum) {
+            return res.status(404).send({ status: "fail", message: `Could not find photo ${photo_id} in album ${album_id}`, })
+        }
+
+        const albumWithoutPhoto = await removePhotoFromAlbum(album_id, photo_id)
 
         res.send({
             status: "success",
-            data: album,
+            data: albumWithoutPhoto,
         })
     }
     catch (err) {

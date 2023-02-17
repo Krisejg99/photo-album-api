@@ -75,3 +75,48 @@ export const addPhotoToAlbum = async (album_id: number, photo_ids: object) => {
         },
     })
 }
+
+/**
+ * 
+ * @param album_id 
+ * @param photo_id 
+ * @returns the album and all its photos
+ */
+export const removePhotoFromAlbum = async (album_id: number, photo_id: number) => {
+    return await prisma.album.update({
+        where: {
+            id: Number(album_id),
+        },
+        data: {
+            photos: {
+                disconnect: {
+                    id: Number(photo_id),
+                },
+            },
+        },
+        include: {
+            photos: true,
+        },
+    })
+}
+
+/**
+ * 
+ * @param album_id 
+ * @param photo_id 
+ * @param user_id 
+ * @returns 
+ */
+export const findPhotoInAlbum = async (album_id: number, photo_id: number, user_id: number) => {
+    return await prisma.album.findFirst({
+        where: {
+            id: album_id,
+            user_id,
+            photos: {
+                some: {
+                    id: photo_id,
+                },
+            },
+        },
+    })
+}
