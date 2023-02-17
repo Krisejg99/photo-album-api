@@ -2,13 +2,13 @@
  * User Validations
  */
 import { body } from 'express-validator'
-import { isValidEmail } from './custom_validations/user_custom_validations'
+import { isExistingEmail } from './custom_validations/user_custom_validations'
 
 export const createUserValidations = [
     body('email')
         .isString().withMessage("has to be a string")
         .isEmail().withMessage("has to be a valid email")
-        .custom(isValidEmail),
+        .custom(isExistingEmail),
     body('password')
         .isString().withMessage("has to be a string")
         .isLength({ min: 6 }).withMessage("has to be at least 6 chars long"),
@@ -24,7 +24,7 @@ export const loginValidations = [
     body('email')
         .isString().withMessage("has to be a string")
         .isEmail().withMessage("has to be a valid email")
-        .custom(isValidEmail),
+        .custom(isExistingEmail),
     body('password')
         .isString().withMessage("has to be a string")
         .isLength({ min: 6 }).withMessage("has to be at least 6 chars long"),
