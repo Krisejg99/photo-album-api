@@ -131,6 +131,7 @@ export const update = async (req: Request, res: Response) => {
 /**
  * Delete an album
  */
+import prisma from '../prisma'
 export const destroy = async (req: Request, res: Response) => {
     const album_id = Number(req.params.albumId)
     const user_id = req.token!.sub
@@ -160,7 +161,6 @@ export const destroy = async (req: Request, res: Response) => {
 /**
  * Connect a photo to an album
  */
-import prisma from '../prisma'
 export const connect = async (req: Request, res: Response) => {
     const validationErrors = validationResult(req)
 	if (!validationErrors.isEmpty()) {
@@ -176,23 +176,19 @@ export const connect = async (req: Request, res: Response) => {
         validatedData.photo_id = [validatedData.photo_id]
     }
 
+    const album_id = Number(req.params.albumId)
+    const user_id = req.token!.sub
     const photo_ids = [...validatedData.photo_id].map((id: Number) => {
         return { id }
     })
 
-    const album_id = Number(req.params.albumId)
-    const user_id = req.token!.sub
-
     try {
         const album = await getAlbum(album_id, user_id)
-
         if (!album) {
             return res.status(404).send({ status: "fail", message: `Could not find album with id ${album_id} to add photo to`, })
         }
 
         const photos = await lookForPhotos(user_id, validatedData.photo_id)
-        debug(photos)
-
         if (photos.length !== validatedData.photo_id.length) {
             return res.status(404).send({ status: "fail", message: "Could not find all photos", })
         }
@@ -208,6 +204,48 @@ export const connect = async (req: Request, res: Response) => {
         res.status(500).send({
             status: "error",
             message: "Could not add photos to album in database",
+        })
+    }
+}
+
+/**
+ * Connect a photo to an album
+ */
+export const disconnect = async (req: Request, res: Response) => {
+    const { albumId: album_id, photoId: photo_id } = req.params
+    const user_id = req.token!.sub
+
+    try {
+        const photo = await getPhoto(Number(photo_id), user_id)
+        if (!photo) {
+            return res.status(404).send({ status: "fail", message: `Could not find album with id ${photo_id} to add photo to`, })
+        }
+
+        const album = await prisma.album.update({
+            where: {
+                id: Number(album_id),
+            },
+            data: {
+                photos: {
+                    disconnect: {
+                        id: Number(photo_id),
+                    },
+                },
+            },
+            include: {
+                photos: true,
+            },
+        })
+
+        res.send({
+            status: "success",
+            data: album,
+        })
+    }
+    catch (err) {
+        res.status(500).send({
+            status: "error",
+            message: "Could not remove photo from album in database",
         })
     }
 }

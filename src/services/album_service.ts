@@ -18,7 +18,7 @@ export const getAlbums = async (user_id: number) => {
 
 /**
  * 
- * @param id number
+ * @param id album_id, number
  * @param user_id number
  * @returns the album with the given params
  */
