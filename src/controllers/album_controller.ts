@@ -172,15 +172,13 @@ export const connect = async (req: Request, res: Response) => {
 
     const validatedData = matchedData(req)
 
-    if (validatedData.photo_id === Number(validatedData.photo_id)) {
-        validatedData.photo_id = [validatedData.photo_id]
+    if (typeof validatedData.photo_id === 'number') {
+        validatedData.photo_id = [ validatedData.photo_id ]
     }
 
+    const photo_ids = [...validatedData.photo_id].map(id => { return { id } })
     const album_id = Number(req.params.albumId)
     const user_id = req.token!.sub
-    const photo_ids = [...validatedData.photo_id].map((id: Number) => {
-        return { id }
-    })
 
     try {
         const album = await getAlbum(album_id, user_id)
@@ -190,10 +188,11 @@ export const connect = async (req: Request, res: Response) => {
 
         const photos = await lookForPhotos(user_id, validatedData.photo_id)
         if (photos.length !== validatedData.photo_id.length) {
-            return res.status(404).send({ status: "fail", message: "Could not find all photos", })
+            return res.status(404).send({ status: "fail", message: "Could not find all the specified photos", })
         }
-        
+
         const result = await addPhotoToAlbum(album_id, photo_ids)
+        debug(result)
 
         res.send({
             status: "success",
