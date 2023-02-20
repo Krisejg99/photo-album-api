@@ -131,10 +131,10 @@ export const update = async (req: Request, res: Response) => {
 /**
  * Delete an album
  */
-import prisma from '../prisma'
 export const destroy = async (req: Request, res: Response) => {
     const album_id = Number(req.params.albumId)
     const user_id = req.token!.sub
+    
     try {
         // Returns null if not found, to be able to send 404 fail with message, instead of going to 'catch'
         const album = await getAlbum(album_id, user_id)
@@ -192,7 +192,6 @@ export const connect = async (req: Request, res: Response) => {
         }
 
         const result = await addPhotoToAlbum(album_id, photo_ids)
-        debug(result)
 
         res.send({
             status: "success",
@@ -208,7 +207,7 @@ export const connect = async (req: Request, res: Response) => {
 }
 
 /**
- * Connect a photo to an album
+ * Disconnect a photo to an album
  */
 export const disconnect = async (req: Request, res: Response) => {
     const album_id = Number(req.params.albumId)
